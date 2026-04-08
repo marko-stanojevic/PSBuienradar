@@ -1,6 +1,6 @@
 # PSBuienradar
 
-A PowerShell survival toolkit for the Netherlands:  fetches current weather from Buienradar to your console - so you'll never get caught in a surprise downpour again.
+A PowerShell survival toolkit for the Netherlands that fetches weather and rain forecast data from Buienradar, then turns it into practical (and slightly humorous) advice.
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/marko-stanojevic/PSBuienradar/ci.yml?branch=main&logo=github&style=flat-square)](https://github.com/marko-stanojevic/PSBuienradar/actions/workflows/ci.yml)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/PSBuienradar.svg)](https://www.powershellgallery.com/packages/PSBuienradar)
@@ -9,11 +9,30 @@ A PowerShell survival toolkit for the Netherlands:  fetches current weather from
 
 ## About
 
-PSBuienradar is a PowerShell module that {BRIEF_MODULE_PURPOSE}. It aims to {MODULE_GOALS_OR_OBJECTIVES}.
+PSBuienradar helps you quickly answer one question: "Do I need to panic-pack an umbrella right now?"
+
+The module combines:
+
+- Public IP detection
+- Geo-location lookup
+- Rain forecast retrieval (Buienradar rain text endpoint)
+- Nearest weather station matching
+- Human-friendly survival advice
 
 ## Why PSBuienradar?
 
-PSBuienradar is designed to {BRIEF_MODULE_PURPOSE}. It simplifies {SPECIFIC_TASKS_OR_PROCESSES} by providing {KEY_BENEFITS_OR_FEATURES}.
+- Fast local weather context for users in the Netherlands
+- PowerShell-native objects that are easy to filter, sort, and script
+- End-to-end "single command" experience via `Get-WeatherSurvivalAdvice`
+- Useful for terminals, scripts, and lightweight automations
+
+## Features
+
+- `Get-PublicIP`: gets your current public IP via ipify
+- `Get-GeoLocation`: resolves IP to latitude/longitude and city
+- `Get-RainForecast`: retrieves and parses the 2-hour Buienradar rain forecast
+- `Get-NearestWeatherStation`: finds the closest Buienradar station using Haversine distance
+- `Get-WeatherSurvivalAdvice`: orchestrates the full workflow and returns a survival report
 
 ## 🚀 Getting Started
 
@@ -22,6 +41,11 @@ PSBuienradar is designed to {BRIEF_MODULE_PURPOSE}. It simplifies {SPECIFIC_TASK
 **Required:**
 
 - **PowerShell 7.0+**
+- Internet access to external APIs:
+	- `https://api.ipify.org`
+	- `http://ip-api.com`
+	- `https://gpsgadget.buienradar.nl`
+	- `https://data.buienradar.nl`
 
 ### Installation
 
@@ -40,16 +64,59 @@ Import-Module PSBuienradar
 Get-Command -Module PSBuienradar
 ```
 
+### Quick Example
+
+```powershell
+$report = Get-WeatherSurvivalAdvice
+$report | Format-List
+```
+
+### Individual Command Examples
+
+```powershell
+# 1) Detect public IP
+$ip = Get-PublicIP
+
+# 2) Resolve IP to geo-location
+$location = Get-GeoLocation -IP $ip
+
+# 3) Get rain forecast for current location
+$forecast = Get-RainForecast -Latitude $location.Latitude -Longitude $location.Longitude
+
+# 4) Find nearest weather station
+$feed = Invoke-RestMethod -Uri 'https://data.buienradar.nl/2.0/feed/json'
+$station = Get-NearestWeatherStation -Latitude $location.Latitude -Longitude $location.Longitude -Stations $feed.actual.stationmeasurements
+
+# 5) Full end-to-end report
+Get-WeatherSurvivalAdvice
+```
+
+## Output Shape
+
+`Get-WeatherSurvivalAdvice` returns a `PSCustomObject` with fields such as:
+
+- `Location`
+- `Latitude`
+- `Longitude`
+- `StationName`
+- `Temperature`
+- `WindSpeed`
+- `WindDirection`
+- `Humidity`
+- `RainForecast`
+- `CurrentRain`
+- `SurvivalAdvice`
+
 ## 📘 Documentation
 
-Comprehensive documentation is available in the [`docs/`](docs/) directory:
+Documentation is available in the [`docs/`](docs/) directory:
 
 - 🚀 **[Getting Started](docs/getting-started.md)** - Practical examples and usage scenarios
-- 📘 **[Module Help](docs/)** - Help files for cmdlets and functions
+- 📘 **[Command Help](docs/help/)** - Generated help files
 
 ## 🤝 Contributing
 
-Contributions are welcome! Whether it’s bug fixes, improvements, or ideas for new features, your input helps make this template better for everyone. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on:
+Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on:
 
 - Pull request workflow
 - Code style and conventions
@@ -57,7 +124,7 @@ Contributions are welcome! Whether it’s bug fixes, improvements, or ideas for 
 
 ## ⭐ Support This Project
 
-If this template saves you time or helps your projects succeed, consider supporting it:
+If this project helps you avoid Dutch weather surprises, consider supporting it:
 
 - ⭐ Star the repository to show your support
 - 🔁 Share it with other PowerShell developers
