@@ -4,7 +4,7 @@ external help file: PSBuienradar-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: PSBuienradar
-ms.date: 04/08/2026
+ms.date: 04/09/2026
 PlatyPS schema version: 2024-05-01
 title: Get-PublicIP
 ---
